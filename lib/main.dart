@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/resident_feed.dart';
+import 'screens/explore_screen.dart';
+import 'screens/notifications_screen.dart';
+import 'screens/messages_screen.dart';
+import 'screens/bookmarks_screen.dart';
+import 'screens/communities_screen.dart';
+import 'screens/profile_screen.dart';
 import 'models/post_model.dart';
 
 void main() {
@@ -23,7 +29,16 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.blue,
       ),
-      home: const ResidentFeed(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const ResidentFeed(),
+        '/explore': (context) => const ExploreScreen(),
+        '/notifications': (context) => const NotificationsScreen(),
+        '/messages': (context) => const MessagesScreen(),
+        '/bookmarks': (context) => const BookmarksScreen(),
+        '/communities': (context) => const CommunitiesScreen(),
+        '/profile': (context) => const ProfileScreen(),
+      },
     );
   }
 }

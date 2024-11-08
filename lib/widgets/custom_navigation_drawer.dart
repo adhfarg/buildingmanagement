@@ -9,38 +9,77 @@ class CustomNavigationDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          SizedBox(
-            height: 250, // Increased height of the header
-            child: DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.black),
-              child: Center(
-                child: Image.asset(
-                  'assets/logo.png',
-                  fit: BoxFit.contain,
-                  width: 250, // Increased width
-                  height: 250, // Increased height
-                ),
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Colors.black),
+            child: Center(
+              child: Image.asset(
+                'assets/logo.png',
+                height: 250,
+                fit: BoxFit.contain,
               ),
             ),
           ),
-          _buildDrawerItem(icon: Icons.home, title: 'Home'),
-          _buildDrawerItem(icon: Icons.search, title: 'Explore'),
-          _buildDrawerItem(icon: Icons.notifications, title: 'Notifications'),
-          _buildDrawerItem(icon: Icons.mail, title: 'Messages'),
-          _buildDrawerItem(icon: Icons.bookmark, title: 'Bookmarks'),
-          _buildDrawerItem(icon: Icons.group, title: 'Communities'),
-          _buildDrawerItem(icon: Icons.person, title: 'Profile'),
+          _buildDrawerItem(
+            context,
+            icon: Icons.home,
+            title: 'Home',
+            route: '/',
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.search,
+            title: 'Explore',
+            route: '/explore',
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.notifications,
+            title: 'Notifications',
+            route: '/notifications',
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.mail,
+            title: 'Messages',
+            route: '/messages',
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.bookmark,
+            title: 'Bookmarks',
+            route: '/bookmarks',
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.group,
+            title: 'Communities',
+            route: '/communities',
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.person,
+            title: 'Profile',
+            route: '/profile',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDrawerItem({required IconData icon, required String title}) {
+  Widget _buildDrawerItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String route,
+  }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
       onTap: () {
-        // Handle navigation
+        Navigator.pop(context); // Close the drawer
+        if (ModalRoute.of(context)?.settings.name != route) {
+          Navigator.pushNamed(context, route);
+        }
       },
     );
   }
