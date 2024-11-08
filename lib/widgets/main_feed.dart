@@ -89,32 +89,32 @@ class _MainFeedState extends State<MainFeed> {
       builder: (context, postModel, child) {
         return Column(
           children: [
-            // Building Updates Section with Scrolling Effect
+            // Building Updates Section with Scrolling Effect (more compact)
             Card(
               color: Colors.grey[900],
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Building Updates',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Container(
-                      height: 100,
+                      height: 70,
                       child: ListView.builder(
                         controller: _scrollController,
                         scrollDirection: Axis.horizontal,
                         itemCount: updates.length,
                         itemBuilder: (context, index) {
                           return Container(
-                            width: 300,
+                            width: 250,
                             child: _buildUpdateItem(
                               updates[index]['emoji']!,
                               updates[index]['title']!,
@@ -153,7 +153,7 @@ class _MainFeedState extends State<MainFeed> {
                         const Text(
                           'Active Residents',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -168,7 +168,7 @@ class _MainFeedState extends State<MainFeed> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -190,14 +190,15 @@ class _MainFeedState extends State<MainFeed> {
 
   Widget _buildUpdateItem(String emoji, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Row(
         children: [
           CircleAvatar(
             backgroundColor: Colors.deepPurple,
-            child: Text(emoji),
+            radius: 16,
+            child: Text(emoji, style: TextStyle(fontSize: 14)),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,13 +206,16 @@ class _MainFeedState extends State<MainFeed> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
                 Text(
                   subtitle,
                   style: TextStyle(
                     color: Colors.grey[600],
-                    fontSize: 14,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -224,12 +228,12 @@ class _MainFeedState extends State<MainFeed> {
 
   Widget _buildActiveResidentChip(String name) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.grey[800],
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(name),
+      child: Text(name, style: TextStyle(fontSize: 14)),
     );
   }
 }
