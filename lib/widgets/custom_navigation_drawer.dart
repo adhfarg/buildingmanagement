@@ -9,10 +9,19 @@ class CustomNavigationDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
-            child: Text('ResidentHub',
-                style: TextStyle(color: Colors.white, fontSize: 24)),
+          SizedBox(
+            height: 250, // Increased height of the header
+            child: DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.black),
+              child: Center(
+                child: Image.asset(
+                  'assets/logo.png',
+                  fit: BoxFit.contain,
+                  width: 250, // Increased width
+                  height: 250, // Increased height
+                ),
+              ),
+            ),
           ),
           _buildDrawerItem(icon: Icons.home, title: 'Home'),
           _buildDrawerItem(icon: Icons.search, title: 'Explore'),

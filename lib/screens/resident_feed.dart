@@ -10,7 +10,11 @@ class ResidentFeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ResidentHub'),
+        title: Image.asset(
+          'assets/logo.png',
+          height: 150, // Increased from 40 to 60
+          fit: BoxFit.contain,
+        ),
         backgroundColor: Colors.black,
       ),
       drawer: const CustomNavigationDrawer(),
