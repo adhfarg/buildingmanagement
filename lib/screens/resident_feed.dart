@@ -12,10 +12,11 @@ class ResidentFeed extends StatelessWidget {
       appBar: AppBar(
         title: Image.asset(
           'assets/logo.png',
-          height: 150, // Increased from 40 to 60
+          height: 150,
           fit: BoxFit.contain,
         ),
         backgroundColor: Colors.black,
+        toolbarHeight: 160,
       ),
       drawer: const CustomNavigationDrawer(),
       body: LayoutBuilder(
