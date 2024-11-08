@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_navigation_drawer.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool receiveNotifications = true;
+  bool emailUpdates = false;
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +57,27 @@ class ProfileScreen extends StatelessWidget {
             _buildInfoItem('Phone', '+1 (555) 123-4567'),
             const SizedBox(height: 16),
             _buildInfoSection('Preferences'),
-            _buildToggleItem('Receive Notifications', true),
-            _buildToggleItem('Email Updates', false),
+            _buildToggleItem('Receive Notifications', receiveNotifications,
+                (value) {
+              setState(() {
+                receiveNotifications = value;
+              });
+            }),
+            _buildToggleItem('Email Updates', emailUpdates, (value) {
+              setState(() {
+                emailUpdates = value;
+              });
+            }),
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
                 onPressed: () {
                   // TODO: Implement edit profile functionality
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('Edit Profile functionality coming soon!')),
+                  );
                 },
                 child: const Text('Edit Profile'),
               ),
@@ -89,7 +111,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildToggleItem(String label, bool value) {
+  Widget _buildToggleItem(String label, bool value, Function(bool) onChanged) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -99,7 +121,7 @@ class ProfileScreen extends StatelessWidget {
           Switch(
             value: value,
             onChanged: (newValue) {
-              // TODO: Implement toggle functionality
+              onChanged(newValue);
             },
           ),
         ],
