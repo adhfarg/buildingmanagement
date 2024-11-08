@@ -4,11 +4,84 @@ import '../models/post_model.dart';
 import 'post_composer.dart';
 import 'post.dart';
 
-class MainFeed extends StatelessWidget {
+class MainFeed extends StatefulWidget {
   final bool showSidebarContent;
 
   const MainFeed({Key? key, required this.showSidebarContent})
       : super(key: key);
+
+  @override
+  State<MainFeed> createState() => _MainFeedState();
+}
+
+class _MainFeedState extends State<MainFeed> {
+  final List<Map<String, String>> updates = [
+    {
+      'emoji': '🏋️',
+      'title': 'New Gym Equipment',
+      'subtitle': 'Arriving next week · Amenities',
+    },
+    {
+      'emoji': '🌿',
+      'title': 'Roof Garden Now Open',
+      'subtitle': 'Open daily · Community',
+    },
+    {
+      'emoji': '🎉',
+      'title': 'Community BBQ',
+      'subtitle': 'This Saturday · Events',
+    },
+    {
+      'emoji': '🏊',
+      'title': 'Pool Maintenance',
+      'subtitle': 'Closed on Monday · Facilities',
+    },
+    {
+      'emoji': '📚',
+      'title': 'Book Club Meeting',
+      'subtitle': 'Next Wednesday · Social',
+    },
+  ];
+
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startScrolling();
+    });
+  }
+
+  void _startScrolling() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (_scrollController.hasClients) {
+        final maxScrollExtent = _scrollController.position.maxScrollExtent;
+        final minScrollExtent = _scrollController.position.minScrollExtent;
+
+        Future.doWhile(() async {
+          await _scrollController.animateTo(
+            maxScrollExtent,
+            duration: Duration(seconds: updates.length * 5),
+            curve: Curves.linear,
+          );
+          await _scrollController.animateTo(
+            minScrollExtent,
+            duration: Duration(seconds: updates.length * 5),
+            curve: Curves.linear,
+          );
+          return true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +89,7 @@ class MainFeed extends StatelessWidget {
       builder: (context, postModel, child) {
         return Column(
           children: [
-            // Building Updates Section
+            // Building Updates Section with Scrolling Effect
             Card(
               color: Colors.grey[900],
               margin: const EdgeInsets.all(16),
@@ -33,20 +106,23 @@ class MainFeed extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildUpdateItem(
-                      '🏋️',
-                      'New Gym Equipment',
-                      'Arriving next week · Amenities',
-                    ),
-                    _buildUpdateItem(
-                      '🌿',
-                      'Roof Garden Now Open',
-                      'Open daily · Community',
-                    ),
-                    _buildUpdateItem(
-                      '🎉',
-                      'Community BBQ',
-                      'This Saturday · Events',
+                    Container(
+                      height: 100,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: updates.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            width: 300,
+                            child: _buildUpdateItem(
+                              updates[index]['emoji']!,
+                              updates[index]['title']!,
+                              updates[index]['subtitle']!,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -114,7 +190,7 @@ class MainFeed extends StatelessWidget {
 
   Widget _buildUpdateItem(String emoji, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Row(
         children: [
           CircleAvatar(
@@ -125,6 +201,7 @@ class MainFeed extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   title,
