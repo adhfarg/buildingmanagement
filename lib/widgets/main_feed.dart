@@ -16,16 +16,6 @@ class MainFeed extends StatelessWidget {
       builder: (context, postModel, child) {
         return ListView(
           children: [
-            const PostComposer(),
-            const Divider(color: Colors.grey),
-            // Posts
-            ...List.generate(
-              postModel.posts.length,
-              (index) => PostWidget(
-                index: index,
-                post: postModel.posts[index],
-              ),
-            ),
             // Building Updates Section
             Card(
               color: Colors.grey[900],
@@ -62,7 +52,18 @@ class MainFeed extends StatelessWidget {
                 ),
               ),
             ),
-            // Active Residents Section
+            // Post Composer
+            const PostComposer(),
+            const Divider(color: Colors.grey),
+            // Posts
+            ...List.generate(
+              postModel.posts.length,
+              (index) => PostWidget(
+                index: index,
+                post: postModel.posts[index],
+              ),
+            ),
+            // Active Residents Section at the bottom
             Card(
               color: Colors.grey[900],
               margin: const EdgeInsets.all(16),
@@ -71,12 +72,25 @@ class MainFeed extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Active Residents',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        const Text(
+                          'Active Residents',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Wrap(
