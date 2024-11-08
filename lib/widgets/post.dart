@@ -12,6 +12,22 @@ class PostWidget extends StatelessWidget {
     required this.post,
   }) : super(key: key);
 
+  String _getProfileImage(String handle) {
+    // Simple mapping of handles to profile images
+    switch (handle) {
+      case '@CurrentUser':
+        return 'https://i.pravatar.cc/150?img=1';
+      case '@PropManager':
+        return 'https://i.pravatar.cc/150?img=2';
+      case '@JohnD':
+        return 'https://i.pravatar.cc/150?img=3';
+      case '@SarahS':
+        return 'https://i.pravatar.cc/150?img=4';
+      default:
+        return 'https://i.pravatar.cc/150?img=5';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -25,7 +41,11 @@ class PostWidget extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
+                  backgroundImage: NetworkImage(_getProfileImage(post.handle)),
                   backgroundColor: Colors.grey[800],
+                  radius: 20,
+                  // Fallback to initial if image fails to load
+                  onBackgroundImageError: (_, __) {},
                   child: Text(post.username[0]),
                 ),
                 const SizedBox(width: 8),
