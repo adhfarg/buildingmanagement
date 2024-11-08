@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/resident_feed.dart';
 import 'screens/explore_screen.dart';
 import 'screens/notifications_screen.dart';
@@ -9,7 +10,9 @@ import 'screens/communities_screen.dart';
 import 'screens/profile_screen.dart';
 import 'models/post_model.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferences.getInstance(); // Initialize shared preferences
   runApp(
     ChangeNotifierProvider(
       create: (context) => PostModel(),
