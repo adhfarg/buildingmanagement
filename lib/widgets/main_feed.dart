@@ -14,7 +14,7 @@ class MainFeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PostModel>(
       builder: (context, postModel, child) {
-        return ListView(
+        return Column(
           children: [
             // Building Updates Section
             Card(
