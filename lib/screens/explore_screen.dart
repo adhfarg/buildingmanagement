@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({Key? key}) : super(key: key);
@@ -100,7 +101,6 @@ class ExploreScreen extends StatelessWidget {
   }
 }
 
-// Gym Screen
 class GymScreen extends StatelessWidget {
   const GymScreen({Key? key}) : super(key: key);
 
@@ -114,10 +114,25 @@ class GymScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Image.network(
-            'https://i.pravatar.cc/400?img=1', // Replace with actual gym image
+          CachedNetworkImage(
+            imageUrl:
+                'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1000&q=80',
             height: 200,
             fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: Icon(Icons.error),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -181,7 +196,6 @@ class GymScreen extends StatelessWidget {
   }
 }
 
-// Pool Screen
 class PoolScreen extends StatelessWidget {
   const PoolScreen({Key? key}) : super(key: key);
 
@@ -195,10 +209,25 @@ class PoolScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Image.network(
-            'https://i.pravatar.cc/400?img=2', // Replace with actual pool image
+          CachedNetworkImage(
+            imageUrl:
+                'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=1000&q=80',
             height: 200,
             fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: Icon(Icons.error),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -262,7 +291,6 @@ class PoolScreen extends StatelessWidget {
   }
 }
 
-// Rooftop Garden Screen
 class RooftopGardenScreen extends StatelessWidget {
   const RooftopGardenScreen({Key? key}) : super(key: key);
 
@@ -276,10 +304,25 @@ class RooftopGardenScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Image.network(
-            'https://i.pravatar.cc/400?img=3', // Replace with actual garden image
+          CachedNetworkImage(
+            imageUrl:
+                'https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=1000&q=80',
             height: 200,
             fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: Icon(Icons.error),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -343,7 +386,6 @@ class RooftopGardenScreen extends StatelessWidget {
   }
 }
 
-// Community Room Screen
 class CommunityRoomScreen extends StatelessWidget {
   const CommunityRoomScreen({Key? key}) : super(key: key);
 
@@ -357,10 +399,25 @@ class CommunityRoomScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Image.network(
-            'https://i.pravatar.cc/400?img=4', // Replace with actual room image
+          CachedNetworkImage(
+            imageUrl:
+                'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=80',
             height: 200,
             fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              height: 200,
+              color: Colors.grey[900],
+              child: const Center(
+                child: Icon(Icons.error),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
