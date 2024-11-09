@@ -166,6 +166,21 @@ class _MainFeedState extends State<MainFeed> {
                                 },
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildNavIcon(
+                                    context, Icons.search, '/explore'),
+                                _buildNavIcon(context, Icons.notifications,
+                                    '/notifications'),
+                                _buildNavIcon(context, Icons.mail, '/messages'),
+                                _buildNavIcon(
+                                    context, Icons.bookmark, '/bookmarks'),
+                                _buildNavIcon(
+                                    context, Icons.group, '/communities'),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -204,13 +219,10 @@ class _MainFeedState extends State<MainFeed> {
                             ),
                             const SizedBox(height: 6),
                             Center(
-                              // Added Center widget here
                               child: AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
                                 child: Column(
-                                  // Changed from Wrap to Column for vertical centering
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .center, // Center vertically
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: _currentResidents
                                       .map(_buildActiveResidentChip)
                                       .toList(),
@@ -279,8 +291,7 @@ class _MainFeedState extends State<MainFeed> {
 
   Widget _buildActiveResidentChip(String name) {
     return Container(
-      margin: const EdgeInsets.symmetric(
-          vertical: 2), // Added margin for spacing between chips
+      margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey[800],
@@ -292,6 +303,15 @@ class _MainFeedState extends State<MainFeed> {
           fontSize: 11,
         ),
       ),
+    );
+  }
+
+  Widget _buildNavIcon(BuildContext context, IconData icon, String route) {
+    return IconButton(
+      icon: Icon(icon, color: Colors.white),
+      onPressed: () {
+        Navigator.pushNamed(context, route);
+      },
     );
   }
 }
