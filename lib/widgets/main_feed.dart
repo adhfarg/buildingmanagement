@@ -83,8 +83,7 @@ class _MainFeedState extends State<MainFeed> {
   void _shuffleAndSetResidents() {
     setState(() {
       List<String> shuffled = List.from(allResidents)..shuffle();
-      _currentResidents =
-          shuffled.take(5).toList(); // Changed from take(3) to take(5)
+      _currentResidents = shuffled.take(5).toList();
     });
   }
 
@@ -138,14 +137,18 @@ class _MainFeedState extends State<MainFeed> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
-                              'Building Updates',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: double.infinity,
+                              child: const Text(
+                                'Building Updates',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 12),

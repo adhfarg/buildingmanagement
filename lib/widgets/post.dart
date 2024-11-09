@@ -18,14 +18,13 @@ class PostWidget extends StatelessWidget {
         'https://ui-avatars.com/api/?name=${Uri.encodeComponent(post.username)}&background=random&color=fff';
 
     return Card(
-      color: Colors.grey[
-          800], // Changed from Colors.grey[500] to Colors.grey[800] for darker background
+      color: Colors.grey[850],
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,13 +44,14 @@ class PostWidget extends StatelessWidget {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          fontSize: 14,
                         ),
                       ),
                       Text(
                         '${post.handle} · ${post.timeAgo}',
                         style: TextStyle(
-                          color: Colors.grey[300],
-                          fontSize: 14,
+                          color: Colors.grey[500],
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -59,12 +59,12 @@ class PostWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               post.content,
-              style: const TextStyle(fontSize: 16, color: Colors.white),
+              style: const TextStyle(fontSize: 14, color: Colors.white),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -93,9 +93,11 @@ class PostWidget extends StatelessWidget {
                   () => context.read<PostModel>().incrementViews(index),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.share, size: 18),
+                  icon: const Icon(Icons.share_outlined, size: 18),
                   onPressed: () {},
-                  color: Colors.grey[300],
+                  color: Colors.grey[600],
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
@@ -114,14 +116,15 @@ class PostWidget extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: Colors.grey[300]),
+          Icon(icon, size: 18, color: Colors.grey[600]),
           const SizedBox(width: 4),
           Text(
             count,
             style: TextStyle(
-              color: Colors.grey[300],
-              fontSize: 14,
+              color: Colors.grey[600],
+              fontSize: 12,
             ),
           ),
         ],
