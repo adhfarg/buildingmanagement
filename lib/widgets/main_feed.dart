@@ -83,7 +83,8 @@ class _MainFeedState extends State<MainFeed> {
   void _shuffleAndSetResidents() {
     setState(() {
       List<String> shuffled = List.from(allResidents)..shuffle();
-      _currentResidents = shuffled.take(3).toList();
+      _currentResidents =
+          shuffled.take(5).toList(); // Changed from take(3) to take(5)
     });
   }
 
