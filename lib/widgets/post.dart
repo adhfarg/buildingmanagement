@@ -12,27 +12,18 @@ class PostWidget extends StatelessWidget {
     required this.post,
   }) : super(key: key);
 
-  String _getProfileImage(String handle) {
-    // Simple mapping of handles to profile images
-    switch (handle) {
-      case '@CurrentUser':
-        return 'https://i.pravatar.cc/150?img=1';
-      case '@PropManager':
-        return 'https://i.pravatar.cc/150?img=2';
-      case '@JohnD':
-        return 'https://i.pravatar.cc/150?img=3';
-      case '@SarahS':
-        return 'https://i.pravatar.cc/150?img=4';
-      default:
-        return 'https://i.pravatar.cc/150?img=5';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    String profilePicUrl =
+        'https://ui-avatars.com/api/?name=${Uri.encodeComponent(post.username)}&background=random&color=fff';
+
     return Card(
-      color: Colors.grey[900],
+      color: Colors.grey[
+          800], // Changed from Colors.grey[500] to Colors.grey[800] for darker background
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -41,12 +32,8 @@ class PostWidget extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(_getProfileImage(post.handle)),
-                  backgroundColor: Colors.grey[800],
+                  backgroundImage: NetworkImage(profilePicUrl),
                   radius: 20,
-                  // Fallback to initial if image fails to load
-                  onBackgroundImageError: (_, __) {},
-                  child: Text(post.username[0]),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -57,12 +44,13 @@ class PostWidget extends StatelessWidget {
                         post.username,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                       Text(
                         '${post.handle} · ${post.timeAgo}',
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: Colors.grey[300],
                           fontSize: 14,
                         ),
                       ),
@@ -74,7 +62,7 @@ class PostWidget extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               post.content,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 16),
             Row(
@@ -107,7 +95,7 @@ class PostWidget extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.share, size: 18),
                   onPressed: () {},
-                  color: Colors.grey[600],
+                  color: Colors.grey[300],
                 ),
               ],
             ),
@@ -127,7 +115,7 @@ class PostWidget extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Colors.grey[600]),
+          Icon(icon, size: 18, color: Colors.grey[300]),
           const SizedBox(width: 4),
           Text(
             count,

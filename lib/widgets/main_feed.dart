@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../models/post_model.dart';
 import 'post_composer.dart';
 import 'post.dart';
+import 'dart:async';
+import 'dart:math';
 
 class MainFeed extends StatefulWidget {
   final bool showSidebarContent;
@@ -43,14 +45,45 @@ class _MainFeedState extends State<MainFeed> {
     },
   ];
 
+  final List<String> allResidents = [
+    'Sarah M.',
+    'Alex T.',
+    'Emma R.',
+    'Adam F.',
+    'Hussien A.',
+    'Diana F.',
+    'Amy G.',
+    'Nagwa G.',
+    'Magda L.',
+    'Jasmine Y.',
+    'Noah A.',
+    'Ramee Y.',
+  ];
+
   late ScrollController _scrollController;
+  late Timer _residentRotationTimer;
+  List<String> _currentResidents = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    _shuffleAndSetResidents();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startScrolling();
+    });
+
+    _residentRotationTimer =
+        Timer.periodic(const Duration(seconds: 6), (timer) {
+      _shuffleAndSetResidents();
+    });
+  }
+
+  void _shuffleAndSetResidents() {
+    setState(() {
+      List<String> shuffled = List.from(allResidents)..shuffle();
+      _currentResidents = shuffled.take(3).toList();
     });
   }
 
@@ -80,6 +113,7 @@ class _MainFeedState extends State<MainFeed> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _residentRotationTimer.cancel();
     super.dispose();
   }
 
@@ -89,97 +123,114 @@ class _MainFeedState extends State<MainFeed> {
       builder: (context, postModel, child) {
         return Column(
           children: [
-            // Building Updates Section with Scrolling Effect (more compact)
-            Card(
-              color: Colors.grey[900],
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Building Updates',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 70,
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: updates.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            width: 250,
-                            child: _buildUpdateItem(
-                              updates[index]['emoji']!,
-                              updates[index]['title']!,
-                              updates[index]['subtitle']!,
+            const PostComposer(),
+            const SizedBox(height: 12),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: 70,
+                    child: Card(
+                      color: Colors.grey[900],
+                      margin: const EdgeInsets.only(left: 16, right: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Building Updates',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          );
-                        },
+                            const SizedBox(height: 12),
+                            Container(
+                              height: 80,
+                              child: ListView.builder(
+                                controller: _scrollController,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: updates.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    width: 300,
+                                    child: _buildUpdateItem(
+                                      updates[index]['emoji']!,
+                                      updates[index]['title']!,
+                                      updates[index]['subtitle']!,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    flex: 30,
+                    child: Card(
+                      color: Colors.grey[900],
+                      margin: const EdgeInsets.only(left: 8, right: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Active Residents',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.green,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Center(
+                              // Added Center widget here
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                child: Column(
+                                  // Changed from Wrap to Column for vertical centering
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .center, // Center vertically
+                                  children: _currentResidents
+                                      .map(_buildActiveResidentChip)
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Post Composer
-            const PostComposer(),
             const Divider(color: Colors.grey),
-            // Posts
             ...List.generate(
               postModel.posts.length,
               (index) => PostWidget(
                 index: index,
                 post: postModel.posts[index],
-              ),
-            ),
-            // Active Residents Section at the bottom
-            Card(
-              color: Colors.grey[900],
-              margin: const EdgeInsets.all(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Active Residents',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildActiveResidentChip('Sarah M.'),
-                        _buildActiveResidentChip('Alex T.'),
-                        _buildActiveResidentChip('Emma R.'),
-                      ],
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
@@ -190,13 +241,13 @@ class _MainFeedState extends State<MainFeed> {
 
   Widget _buildUpdateItem(String emoji, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       child: Row(
         children: [
           CircleAvatar(
             backgroundColor: Colors.deepPurple,
             radius: 16,
-            child: Text(emoji, style: TextStyle(fontSize: 14)),
+            child: Text(emoji, style: TextStyle(fontSize: 12)),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -228,12 +279,19 @@ class _MainFeedState extends State<MainFeed> {
 
   Widget _buildActiveResidentChip(String name) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(
+          vertical: 2), // Added margin for spacing between chips
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey[800],
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(name, style: TextStyle(fontSize: 14)),
+      child: Text(
+        name,
+        style: const TextStyle(
+          fontSize: 11,
+        ),
+      ),
     );
   }
 }
