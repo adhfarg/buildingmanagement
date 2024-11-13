@@ -3,6 +3,10 @@
         android:label="building_management"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Add this meta-data tag for Google Maps -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB9bYRw3GSn70-9T9vkO0UPaadKAg5luqY"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
