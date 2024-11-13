@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_navigation_drawer.dart';
+import '../widgets/bottom_home_button.dart';
 
 class Community {
   final String name;
@@ -85,18 +86,23 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         toolbarHeight: 160,
       ),
       drawer: const CustomNavigationDrawer(),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Stack(
         children: [
-          const Text(
-            'Communities',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            children: [
+              const Text(
+                'Communities',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ...List.generate(
+                communities.length,
+                (index) => _buildCommunityItem(index),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          ...List.generate(
-            communities.length,
-            (index) => _buildCommunityItem(index),
-          ),
+          const BottomHomeButton(),
         ],
       ),
     );

@@ -12,7 +12,7 @@ import 'models/post_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferences.getInstance(); // Initialize shared preferences
+  await SharedPreferences.getInstance();
   runApp(
     ChangeNotifierProvider(
       create: (context) => PostModel(),
@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.blue,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
       ),
       initialRoute: '/',
       routes: {

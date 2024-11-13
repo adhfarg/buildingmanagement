@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_navigation_drawer.dart';
+import '../widgets/bottom_home_button.dart';
 
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({Key? key}) : super(key: key);
@@ -17,29 +18,34 @@ class MessagesScreen extends StatelessWidget {
         toolbarHeight: 160,
       ),
       drawer: const CustomNavigationDrawer(),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Stack(
         children: [
-          const Text(
-            'Messages',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            children: [
+              const Text(
+                'Messages',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _buildMessageItem(
+                'Property Manager',
+                'Thank you for your prompt response regarding...',
+                'https://picsum.photos/seed/PropManager/200',
+              ),
+              _buildMessageItem(
+                'Maintenance Team',
+                'We\'ve scheduled the repair for your unit on...',
+                'https://picsum.photos/seed/Maintenance/200',
+              ),
+              _buildMessageItem(
+                'John from 4B',
+                'Hey neighbor! I was wondering if you could...',
+                'https://picsum.photos/seed/John4B/200',
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildMessageItem(
-            'Property Manager',
-            'Thank you for your prompt response regarding...',
-            'https://picsum.photos/seed/PropManager/200',
-          ),
-          _buildMessageItem(
-            'Maintenance Team',
-            'We\'ve scheduled the repair for your unit on...',
-            'https://picsum.photos/seed/Maintenance/200',
-          ),
-          _buildMessageItem(
-            'John from 4B',
-            'Hey neighbor! I was wondering if you could...',
-            'https://picsum.photos/seed/John4B/200',
-          ),
+          const BottomHomeButton(),
         ],
       ),
     );

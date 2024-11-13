@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_navigation_drawer.dart';
+import '../widgets/bottom_home_button.dart';
 
 class BookmarksScreen extends StatelessWidget {
   const BookmarksScreen({Key? key}) : super(key: key);
@@ -17,34 +18,39 @@ class BookmarksScreen extends StatelessWidget {
         toolbarHeight: 160,
       ),
       drawer: const CustomNavigationDrawer(),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Stack(
         children: [
-          const Text(
-            'Bookmarks',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            children: [
+              const Text(
+                'Bookmarks',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _buildBookmarkItem(
+                'Community Guidelines',
+                'Important rules and regulations for all residents',
+                Icons.book,
+              ),
+              _buildBookmarkItem(
+                'Maintenance Request Form',
+                'Quick access to submit maintenance requests',
+                Icons.build,
+              ),
+              _buildBookmarkItem(
+                'Amenity Reservations',
+                'Book common areas and amenities',
+                Icons.event,
+              ),
+              _buildBookmarkItem(
+                'Emergency Contacts',
+                'Important numbers for emergencies',
+                Icons.emergency,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildBookmarkItem(
-            'Community Guidelines',
-            'Important rules and regulations for all residents',
-            Icons.book,
-          ),
-          _buildBookmarkItem(
-            'Maintenance Request Form',
-            'Quick access to submit maintenance requests',
-            Icons.build,
-          ),
-          _buildBookmarkItem(
-            'Amenity Reservations',
-            'Book common areas and amenities',
-            Icons.event,
-          ),
-          _buildBookmarkItem(
-            'Emergency Contacts',
-            'Important numbers for emergencies',
-            Icons.emergency,
-          ),
+          const BottomHomeButton(),
         ],
       ),
     );

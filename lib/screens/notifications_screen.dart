@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_navigation_drawer.dart';
+import '../widgets/bottom_home_button.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -17,29 +18,34 @@ class NotificationsScreen extends StatelessWidget {
         toolbarHeight: 160,
       ),
       drawer: const CustomNavigationDrawer(),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Stack(
         children: [
-          const Text(
-            'Notifications',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            children: [
+              const Text(
+                'Notifications',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _buildNotificationItem(
+                'Maintenance Update',
+                'The elevator maintenance is complete. Thank you for your patience.',
+                '2 hours ago',
+              ),
+              _buildNotificationItem(
+                'Community Event',
+                'Don\'t forget about the rooftop BBQ this Saturday!',
+                '1 day ago',
+              ),
+              _buildNotificationItem(
+                'Package Delivery',
+                'You have a package waiting at the front desk.',
+                '2 days ago',
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildNotificationItem(
-            'Maintenance Update',
-            'The elevator maintenance is complete. Thank you for your patience.',
-            '2 hours ago',
-          ),
-          _buildNotificationItem(
-            'Community Event',
-            'Don\'t forget about the rooftop BBQ this Saturday!',
-            '1 day ago',
-          ),
-          _buildNotificationItem(
-            'Package Delivery',
-            'You have a package waiting at the front desk.',
-            '2 days ago',
-          ),
+          const BottomHomeButton(),
         ],
       ),
     );

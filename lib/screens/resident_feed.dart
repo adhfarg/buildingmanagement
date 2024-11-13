@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import '../widgets/custom_navigation_drawer.dart';
 import '../widgets/main_feed.dart';
+import '../widgets/right_sidebar.dart';
 
 class ResidentFeed extends StatefulWidget {
   const ResidentFeed({Key? key}) : super(key: key);
@@ -65,9 +66,26 @@ class _ResidentFeedState extends State<ResidentFeed> {
           return CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverToBoxAdapter(
-                child: MainFeed(showSidebarContent: constraints.maxWidth > 600),
-              ),
+              if (constraints.maxWidth >= 1200)
+                SliverToBoxAdapter(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: MainFeed(showSidebarContent: false),
+                      ),
+                      const Expanded(
+                        flex: 1,
+                        child: RightSidebar(),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                SliverToBoxAdapter(
+                  child: MainFeed(showSidebarContent: true),
+                ),
             ],
           );
         },
