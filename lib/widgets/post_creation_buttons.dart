@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:io';
@@ -14,14 +13,14 @@ class PostCreationButtons extends StatefulWidget {
   final Function(String) onLocationSelected;
 
   const PostCreationButtons({
-    super.key,
+    Key? key,
     required this.onImageSelected,
     required this.onGifSelected,
     required this.onEmojiSelected,
     required this.onPollCreated,
     required this.onScheduleSelected,
     required this.onLocationSelected,
-  });
+  }) : super(key: key);
 
   @override
   _PostCreationButtonsState createState() => _PostCreationButtonsState();
@@ -31,39 +30,44 @@ class _PostCreationButtonsState extends State<PostCreationButtons> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
-    final List<XFile>? images = await _picker.pickMultiImage();
-    if (images != null) {
-      widget.onImageSelected(images.map((xFile) => File(xFile.path)).toList());
+    try {
+      final List<XFile>? images = await _picker.pickMultiImage();
+      if (images != null && images.isNotEmpty) {
+        widget
+            .onImageSelected(images.map((xFile) => File(xFile.path)).toList());
+      }
+    } catch (e) {
+      print('Error picking images: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to pick images. Please try again.')),
+      );
     }
   }
 
   Future<void> _pickGif(BuildContext context) async {
-    final gif = await GiphyPicker.pickGif(
-      context: context,
-      apiKey: 'YOUR_GIPHY_API_KEY', // Replace with your Giphy API key
-    );
-    if (gif != null && gif.images.original?.url != null) {
-      widget.onGifSelected(gif.images.original!.url!);
+    try {
+      final gif = await GiphyPicker.pickGif(
+        context: context,
+        apiKey: 'mwtfTseYVUSHvp1YaZXF9YMfotgTzhf1',
+      );
+      if (gif != null && gif.images.original?.url != null) {
+        widget.onGifSelected(gif.images.original!.url!);
+      }
+    } catch (e) {
+      print('Error picking GIF: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load GIFs. Please try again later.')),
+      );
     }
   }
 
   void _showEmojiPicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return EmojiPicker(
-          onEmojiSelected: (category, emoji) {
-            Navigator.pop(context);
-            widget.onEmojiSelected(emoji.emoji);
-          },
-        );
-      },
-    );
+    // Implement emoji picker
+    widget.onEmojiSelected('😊'); // Placeholder implementation
   }
 
   void _showPollCreator(BuildContext context) {
     // Implement poll creation UI and logic here
-    // For simplicity, we'll just create a dummy poll
     final Map<String, int> dummyPoll = {
       'Option 1': 0,
       'Option 2': 0,
@@ -131,26 +135,32 @@ class _PostCreationButtonsState extends State<PostCreationButtons> {
         IconButton(
           icon: const Icon(Icons.image),
           onPressed: _pickImage,
+          color: Colors.grey[600],
         ),
         IconButton(
           icon: const Icon(Icons.gif),
           onPressed: () => _pickGif(context),
-        ),
-        IconButton(
-          icon: const Icon(Icons.emoji_emotions),
-          onPressed: () => _showEmojiPicker(context),
+          color: Colors.grey[600],
         ),
         IconButton(
           icon: const Icon(Icons.poll),
           onPressed: () => _showPollCreator(context),
+          color: Colors.grey[600],
+        ),
+        IconButton(
+          icon: const Icon(Icons.emoji_emotions),
+          onPressed: () => _showEmojiPicker(context),
+          color: Colors.grey[600],
         ),
         IconButton(
           icon: const Icon(Icons.schedule),
           onPressed: () => _showDateTimePicker(context),
+          color: Colors.grey[600],
         ),
         IconButton(
           icon: const Icon(Icons.location_on),
           onPressed: () => _showLocationPicker(context),
+          color: Colors.grey[600],
         ),
       ],
     );

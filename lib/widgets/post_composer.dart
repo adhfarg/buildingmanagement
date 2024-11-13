@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/post_model.dart';
+import 'post_creation_buttons.dart';
+import 'dart:io';
 
 class PostComposer extends StatefulWidget {
   const PostComposer({Key? key}) : super(key: key);
@@ -11,6 +13,12 @@ class PostComposer extends StatefulWidget {
 
 class _PostComposerState extends State<PostComposer> {
   final TextEditingController _controller = TextEditingController();
+  List<File> _selectedImages = [];
+  String? _selectedGif;
+  String? _selectedEmoji;
+  Map<String, int>? _createdPoll;
+  DateTime? _scheduledDateTime;
+  String? _selectedLocation;
 
   @override
   void dispose() {
@@ -20,18 +28,40 @@ class _PostComposerState extends State<PostComposer> {
 
   void _submitPost() {
     if (_controller.text.isNotEmpty) {
-      context.read<PostModel>().addPost(_controller.text);
-      _controller.clear();
+      String content = _controller.text;
+      if (_selectedImages.isNotEmpty) {
+        content += '\n[${_selectedImages.length} images attached]';
+      }
+      if (_selectedGif != null) {
+        content += '\n[GIF: $_selectedGif]';
+      }
+      if (_selectedEmoji != null) {
+        content += ' $_selectedEmoji';
+      }
+      if (_createdPoll != null) {
+        content += '\n[Poll attached]';
+      }
+      if (_scheduledDateTime != null) {
+        content += '\n[Scheduled for: ${_scheduledDateTime!.toLocal()}]';
+      }
+      if (_selectedLocation != null) {
+        content += '\n[Location: $_selectedLocation]';
+      }
+      context.read<PostModel>().addPost(content);
+      _resetState();
     }
   }
 
-  Widget _buildMediaButton(IconData icon, String tooltip) {
-    return IconButton(
-      icon: Icon(icon, size: 20),
-      onPressed: () {},
-      tooltip: tooltip,
-      color: Colors.grey[600],
-    );
+  void _resetState() {
+    _controller.clear();
+    setState(() {
+      _selectedImages = [];
+      _selectedGif = null;
+      _selectedEmoji = null;
+      _createdPoll = null;
+      _scheduledDateTime = null;
+      _selectedLocation = null;
+    });
   }
 
   @override
@@ -71,15 +101,18 @@ class _PostComposerState extends State<PostComposer> {
             Row(
               children: [
                 Expanded(
-                  child: Row(
-                    children: [
-                      _buildMediaButton(Icons.image, 'Image'),
-                      _buildMediaButton(Icons.gif, 'GIF'),
-                      _buildMediaButton(Icons.poll, 'Poll'),
-                      _buildMediaButton(Icons.emoji_emotions, 'Emoji'),
-                      _buildMediaButton(Icons.schedule, 'Schedule'),
-                      _buildMediaButton(Icons.location_on, 'Location'),
-                    ],
+                  child: PostCreationButtons(
+                    onImageSelected: (images) =>
+                        setState(() => _selectedImages = images),
+                    onGifSelected: (gif) => setState(() => _selectedGif = gif),
+                    onEmojiSelected: (emoji) =>
+                        setState(() => _selectedEmoji = emoji),
+                    onPollCreated: (poll) =>
+                        setState(() => _createdPoll = poll),
+                    onScheduleSelected: (dateTime) =>
+                        setState(() => _scheduledDateTime = dateTime),
+                    onLocationSelected: (location) =>
+                        setState(() => _selectedLocation = location),
                   ),
                 ),
                 ElevatedButton(
