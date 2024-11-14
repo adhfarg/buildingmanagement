@@ -11,6 +11,11 @@ class Post {
   int reposts;
   int likes;
   int views;
+  final String? gifUrl;
+  final List<String>? images;
+  final Map<String, int>? poll;
+  final DateTime? scheduledTime;
+  final String? location;
 
   Post({
     required this.username,
@@ -21,6 +26,11 @@ class Post {
     this.reposts = 0,
     this.likes = 0,
     this.views = 0,
+    this.gifUrl,
+    this.images,
+    this.poll,
+    this.scheduledTime,
+    this.location,
   });
 
   Map<String, dynamic> toJson() {
@@ -33,6 +43,11 @@ class Post {
       'reposts': reposts,
       'likes': likes,
       'views': views,
+      'gifUrl': gifUrl,
+      'images': images,
+      'poll': poll,
+      'scheduledTime': scheduledTime?.toIso8601String(),
+      'location': location,
     };
   }
 
@@ -46,6 +61,15 @@ class Post {
       reposts: json['reposts'] as int,
       likes: json['likes'] as int,
       views: json['views'] as int,
+      gifUrl: json['gifUrl'] as String?,
+      images: (json['images'] as List<dynamic>?)?.cast<String>(),
+      poll: (json['poll'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, v as int),
+      ),
+      scheduledTime: json['scheduledTime'] != null
+          ? DateTime.parse(json['scheduledTime'] as String)
+          : null,
+      location: json['location'] as String?,
     );
   }
 }
@@ -128,16 +152,8 @@ class PostModel extends ChangeNotifier {
     _savePosts();
   }
 
-  void addPost(String content) {
-    _posts.insert(
-      0,
-      Post(
-        username: 'Current User',
-        handle: '@CurrentUser',
-        content: content,
-        timeAgo: 'now',
-      ),
-    );
+  void addPost(Post post) {
+    _posts.insert(0, post);
     _savePosts();
     notifyListeners();
   }

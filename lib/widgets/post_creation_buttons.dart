@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:giphy_picker/giphy_picker.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart' as foundation;
 
-class PostCreationButtons extends StatefulWidget {
+class PostCreationButtons extends StatelessWidget {
   final Function(List<File>) onImageSelected;
-  final Function(String) onGifSelected;
+  final Function(GiphyGif) onGifSelected;
   final Function(String) onEmojiSelected;
-  final Function(Map<String, int>) onPollCreated;
-  final Function(DateTime) onScheduleSelected;
-  final Function(String) onLocationSelected;
+  final Function() onPollCreated;
+  final Function() onScheduleSelected;
+  final Function() onLocationSelected;
 
   const PostCreationButtons({
     Key? key,
@@ -22,24 +23,16 @@ class PostCreationButtons extends StatefulWidget {
     required this.onLocationSelected,
   }) : super(key: key);
 
-  @override
-  _PostCreationButtonsState createState() => _PostCreationButtonsState();
-}
-
-class _PostCreationButtonsState extends State<PostCreationButtons> {
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(BuildContext context) async {
+    final ImagePicker picker = ImagePicker();
     try {
-      final List<XFile>? images = await _picker.pickMultiImage();
+      final List<XFile>? images = await picker.pickMultiImage();
       if (images != null && images.isNotEmpty) {
-        widget
-            .onImageSelected(images.map((xFile) => File(xFile.path)).toList());
+        onImageSelected(images.map((xFile) => File(xFile.path)).toList());
       }
     } catch (e) {
-      print('Error picking images: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to pick images. Please try again.')),
+        const SnackBar(content: Text('Failed to pick images')),
       );
     }
   }
@@ -49,77 +42,67 @@ class _PostCreationButtonsState extends State<PostCreationButtons> {
       final gif = await GiphyPicker.pickGif(
         context: context,
         apiKey: 'mwtfTseYVUSHvp1YaZXF9YMfotgTzhf1',
+        fullScreenDialog: true,
+        showPreviewPage: true,
+        sticker: false,
       );
-      if (gif != null && gif.images.original?.url != null) {
-        widget.onGifSelected(gif.images.original!.url!);
+
+      if (gif != null) {
+        final gifUrl = gif.images.original?.url;
+        if (gifUrl != null) {
+          onGifSelected(gif);
+        }
       }
     } catch (e) {
       print('Error picking GIF: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load GIFs. Please try again later.')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to load GIFs')),
+        );
+      }
     }
   }
 
   void _showEmojiPicker(BuildContext context) {
-    // Implement emoji picker
-    widget.onEmojiSelected('😊'); // Placeholder implementation
-  }
-
-  void _showPollCreator(BuildContext context) {
-    // Implement poll creation UI and logic here
-    final Map<String, int> dummyPoll = {
-      'Option 1': 0,
-      'Option 2': 0,
-      'Option 3': 0,
-    };
-    widget.onPollCreated(dummyPoll);
-  }
-
-  Future<void> _showDateTimePicker(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-      if (pickedTime != null) {
-        final DateTime scheduledDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-        widget.onScheduleSelected(scheduledDateTime);
-      }
-    }
-  }
-
-  void _showLocationPicker(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Location'),
-          content: SizedBox(
-            width: 300,
-            height: 300,
-            child: GoogleMap(
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(0, 0),
-                zoom: 2,
+        return SizedBox(
+          height: 250,
+          child: EmojiPicker(
+            onEmojiSelected: (Category? category, Emoji emoji) {
+              Navigator.pop(context);
+              onEmojiSelected(emoji.emoji);
+            },
+            config: Config(
+              columns: 7,
+              emojiSizeMax: 32 *
+                  (foundation.defaultTargetPlatform == TargetPlatform.iOS
+                      ? 1.30
+                      : 1.0),
+              verticalSpacing: 0,
+              horizontalSpacing: 0,
+              gridPadding: EdgeInsets.zero,
+              initCategory: Category.RECENT,
+              bgColor: Theme.of(context).scaffoldBackgroundColor,
+              indicatorColor: Theme.of(context).primaryColor,
+              iconColor: Colors.grey,
+              iconColorSelected: Theme.of(context).primaryColor,
+              backspaceColor: Theme.of(context).primaryColor,
+              skinToneDialogBgColor: Colors.white,
+              skinToneIndicatorColor: Colors.grey,
+              enableSkinTones: true,
+              recentTabBehavior: RecentTabBehavior.RECENT,
+              recentsLimit: 28,
+              noRecents: const Text(
+                'No Recents',
+                style: TextStyle(fontSize: 20, color: Colors.black26),
+                textAlign: TextAlign.center,
               ),
-              onTap: (LatLng position) {
-                Navigator.pop(context);
-                widget.onLocationSelected(
-                    '${position.latitude}, ${position.longitude}');
-              },
+              loadingIndicator: const SizedBox.shrink(),
+              tabIndicatorAnimDuration: kTabScrollDuration,
+              categoryIcons: const CategoryIcons(),
+              buttonMode: ButtonMode.MATERIAL,
             ),
           ),
         );
@@ -134,7 +117,7 @@ class _PostCreationButtonsState extends State<PostCreationButtons> {
       children: [
         IconButton(
           icon: const Icon(Icons.image),
-          onPressed: _pickImage,
+          onPressed: () => _pickImage(context),
           color: Colors.grey[600],
         ),
         IconButton(
@@ -143,23 +126,23 @@ class _PostCreationButtonsState extends State<PostCreationButtons> {
           color: Colors.grey[600],
         ),
         IconButton(
-          icon: const Icon(Icons.poll),
-          onPressed: () => _showPollCreator(context),
-          color: Colors.grey[600],
-        ),
-        IconButton(
           icon: const Icon(Icons.emoji_emotions),
           onPressed: () => _showEmojiPicker(context),
           color: Colors.grey[600],
         ),
         IconButton(
+          icon: const Icon(Icons.poll),
+          onPressed: onPollCreated,
+          color: Colors.grey[600],
+        ),
+        IconButton(
           icon: const Icon(Icons.schedule),
-          onPressed: () => _showDateTimePicker(context),
+          onPressed: onScheduleSelected,
           color: Colors.grey[600],
         ),
         IconButton(
           icon: const Icon(Icons.location_on),
-          onPressed: () => _showLocationPicker(context),
+          onPressed: onLocationSelected,
           color: Colors.grey[600],
         ),
       ],

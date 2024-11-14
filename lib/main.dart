@@ -1,24 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/resident_feed.dart';
-import 'screens/explore_screen.dart';
-import 'screens/notifications_screen.dart';
-import 'screens/messages_screen.dart';
-import 'screens/bookmarks_screen.dart';
-import 'screens/communities_screen.dart';
-import 'screens/profile_screen.dart';
 import 'models/post_model.dart';
+import 'models/message_model.dart';
+import 'routes/routes.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferences.getInstance();
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => PostModel(),
-      child: const MyApp(),
-    ),
-  );
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -26,23 +13,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Building Management',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        primaryColor: Colors.blue,
-        appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => PostModel()),
+        ChangeNotifierProvider(create: (context) => MessageModel()),
+      ],
+      child: MaterialApp(
+        title: 'Building Management',
+        theme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: Colors.black,
+          cardColor: Colors.grey[900],
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.grey[900],
+            elevation: 0,
+          ),
+        ),
+        initialRoute: Routes.home,
+        routes: Routes.getRoutes(),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const ResidentFeed(),
-        '/explore': (context) => const ExploreScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/messages': (context) => const MessagesScreen(),
-        '/bookmarks': (context) => const BookmarksScreen(),
-        '/communities': (context) => const CommunitiesScreen(),
-        '/profile': (context) => const ProfileScreen(),
-      },
     );
   }
 }

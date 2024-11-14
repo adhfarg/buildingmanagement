@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/post_model.dart';
 import 'post_composer.dart';
-import 'post.dart';
+import 'post_widget.dart';
 import 'dart:async';
 import 'dart:math';
+import '../routes/routes.dart';
 
 class MainFeed extends StatefulWidget {
   final bool showSidebarContent;
@@ -175,14 +176,15 @@ class _MainFeedState extends State<MainFeed> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 _buildNavIcon(
-                                    context, Icons.search, '/explore'),
+                                    context, Icons.search, Routes.explore),
                                 _buildNavIcon(context, Icons.notifications,
-                                    '/notifications'),
-                                _buildNavIcon(context, Icons.mail, '/messages'),
+                                    Routes.notifications),
                                 _buildNavIcon(
-                                    context, Icons.bookmark, '/bookmarks'),
+                                    context, Icons.mail, Routes.messages),
                                 _buildNavIcon(
-                                    context, Icons.group, '/communities'),
+                                    context, Icons.bookmark, Routes.bookmarks),
+                                _buildNavIcon(
+                                    context, Icons.group, Routes.communities),
                               ],
                             ),
                           ],
@@ -313,9 +315,7 @@ class _MainFeedState extends State<MainFeed> {
   Widget _buildNavIcon(BuildContext context, IconData icon, String route) {
     return IconButton(
       icon: Icon(icon, color: Colors.white),
-      onPressed: () {
-        Navigator.pushNamed(context, route);
-      },
+      onPressed: () => Routes.navigateTo(context, route),
     );
   }
 }
