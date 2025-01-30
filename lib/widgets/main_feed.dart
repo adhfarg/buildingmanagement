@@ -4,7 +4,6 @@ import '../models/post_model.dart';
 import 'post_composer.dart';
 import 'post_widget.dart';
 import 'dart:async';
-import 'dart:math';
 import '../routes/routes.dart';
 
 class MainFeed extends StatefulWidget {
@@ -153,7 +152,7 @@ class _MainFeedState extends State<MainFeed> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            Container(
+                            SizedBox(
                               height: 80,
                               child: ListView.builder(
                                 controller: _scrollController,
@@ -176,15 +175,13 @@ class _MainFeedState extends State<MainFeed> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 _buildNavIcon(
-                                    context, Icons.search, Routes.explore),
+                                    context, Icons.explore, Routes.explore),
                                 _buildNavIcon(context, Icons.notifications,
                                     Routes.notifications),
                                 _buildNavIcon(
-                                    context, Icons.mail, Routes.messages),
+                                    context, Icons.message, Routes.messages),
                                 _buildNavIcon(
-                                    context, Icons.bookmark, Routes.bookmarks),
-                                _buildNavIcon(
-                                    context, Icons.group, Routes.communities),
+                                    context, Icons.person, Routes.profile),
                               ],
                             ),
                           ],
@@ -192,65 +189,65 @@ class _MainFeedState extends State<MainFeed> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    flex: 30,
-                    child: Card(
-                      color: Colors.grey[900],
-                      margin: const EdgeInsets.only(left: 8, right: 16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                const Text(
-                                  'Active Residents',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                  if (widget.showSidebarContent)
+                    Expanded(
+                      flex: 30,
+                      child: Card(
+                        color: Colors.grey[900],
+                        margin: const EdgeInsets.only(left: 8, right: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Active Residents',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                Container(
-                                  width: 4,
-                                  height: 4,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
+                                  const SizedBox(width: 4),
+                                  Container(
+                                    width: 4,
+                                    height: 4,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.green,
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Center(
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: _currentResidents
-                                      .map(_buildActiveResidentChip)
-                                      .toList(),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 500),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: _currentResidents
+                                        .map(_buildActiveResidentChip)
+                                        .toList(),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
             const Divider(color: Colors.grey),
-            ...List.generate(
-              postModel.posts.length,
-              (index) => PostWidget(
-                index: index,
-                post: postModel.posts[index],
-              ),
-            ),
+            ...postModel.posts.asMap().entries.map((entry) {
+              return PostWidget(
+                post: entry.value,
+                index: entry.key,
+              );
+            }).toList(),
           ],
         );
       },
@@ -265,7 +262,7 @@ class _MainFeedState extends State<MainFeed> {
           CircleAvatar(
             backgroundColor: Colors.deepPurple,
             radius: 16,
-            child: Text(emoji, style: TextStyle(fontSize: 12)),
+            child: Text(emoji, style: const TextStyle(fontSize: 12)),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -315,7 +312,7 @@ class _MainFeedState extends State<MainFeed> {
   Widget _buildNavIcon(BuildContext context, IconData icon, String route) {
     return IconButton(
       icon: Icon(icon, color: Colors.white),
-      onPressed: () => Routes.navigateTo(context, route),
+      onPressed: () => Navigator.pushNamed(context, route),
     );
   }
 }

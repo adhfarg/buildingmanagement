@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../routes/routes.dart';
 
 class BottomHomeButton extends StatelessWidget {
   const BottomHomeButton({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class BottomHomeButton extends StatelessWidget {
       child: Center(
         child: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            Navigator.of(context).pushReplacementNamed(Routes.home);
           },
           backgroundColor: Colors.grey[800],
           child: const Icon(Icons.home, color: Colors.white),

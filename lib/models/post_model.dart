@@ -1,83 +1,60 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class Post {
-  final String username;
-  final String handle;
+  final String id;
   final String content;
-  final String timeAgo;
+  final String authorName;
+  final DateTime timestamp;
   int comments;
   int reposts;
   int likes;
   int views;
-  final String? gifUrl;
-  final List<String>? images;
-  final Map<String, int>? poll;
-  final DateTime? scheduledTime;
-  final String? location;
 
   Post({
-    required this.username,
-    required this.handle,
+    required this.id,
     required this.content,
-    required this.timeAgo,
+    required this.authorName,
+    required this.timestamp,
     this.comments = 0,
     this.reposts = 0,
     this.likes = 0,
     this.views = 0,
-    this.gifUrl,
-    this.images,
-    this.poll,
-    this.scheduledTime,
-    this.location,
   });
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: json['id'] as String,
+      content: json['content'] as String,
+      authorName: json['author_name'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      comments: json['comments'] as int? ?? 0,
+      reposts: json['reposts'] as int? ?? 0,
+      likes: json['likes'] as int? ?? 0,
+      views: json['views'] as int? ?? 0,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
-      'username': username,
-      'handle': handle,
+      'id': id,
       'content': content,
-      'timeAgo': timeAgo,
+      'author_name': authorName,
+      'timestamp': timestamp.toIso8601String(),
       'comments': comments,
       'reposts': reposts,
       'likes': likes,
       'views': views,
-      'gifUrl': gifUrl,
-      'images': images,
-      'poll': poll,
-      'scheduledTime': scheduledTime?.toIso8601String(),
-      'location': location,
     };
-  }
-
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      username: json['username'] as String,
-      handle: json['handle'] as String,
-      content: json['content'] as String,
-      timeAgo: json['timeAgo'] as String,
-      comments: json['comments'] as int,
-      reposts: json['reposts'] as int,
-      likes: json['likes'] as int,
-      views: json['views'] as int,
-      gifUrl: json['gifUrl'] as String?,
-      images: (json['images'] as List<dynamic>?)?.cast<String>(),
-      poll: (json['poll'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, v as int),
-      ),
-      scheduledTime: json['scheduledTime'] != null
-          ? DateTime.parse(json['scheduledTime'] as String)
-          : null,
-      location: json['location'] as String?,
-    );
   }
 }
 
 class PostModel extends ChangeNotifier {
-  List<Post> _posts = [];
+  final List<Post> _posts = [];
+  final _supabase = Supabase.instance.client;
 
-  List<Post> get posts => _posts;
+  List<Post> get posts => List.unmodifiable(_posts);
 
   PostModel() {
     _loadPosts();
@@ -85,100 +62,76 @@ class PostModel extends ChangeNotifier {
 
   Future<void> _loadPosts() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final postsJson = prefs.getString('posts');
-      if (postsJson != null) {
-        final List<dynamic> decodedList = jsonDecode(postsJson);
-        _posts = decodedList.map((item) => Post.fromJson(item)).toList();
-      }
-      if (_posts.isEmpty) {
-        _addInitialPosts();
+      print('Loading posts from Supabase...');
+      final response = await _supabase
+          .from('posts')
+          .select()
+          .order('timestamp', ascending: false);
+      print('Received response from Supabase: $response');
+
+      _posts.clear();
+      for (final postData in response) {
+        _posts.add(Post.fromJson(postData));
       }
       notifyListeners();
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error loading posts: $e');
-      _addInitialPosts();
-      notifyListeners();
+      print('Stack trace: $stackTrace');
     }
   }
 
-  Future<void> _savePosts() async {
+  Future<void> addPost(String content, String authorName) async {
+    final uuid = const Uuid().v4();
+    final newPost = Post(
+      id: uuid,
+      content: content,
+      authorName: authorName,
+      timestamp: DateTime.now().toUtc(),
+    );
+
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final postsJson =
-          jsonEncode(_posts.map((post) => post.toJson()).toList());
-      await prefs.setString('posts', postsJson);
-    } catch (e) {
-      print('Error saving posts: $e');
+      // Add to local list first
+      _posts.insert(0, newPost);
+      notifyListeners();
+
+      // Then add to Supabase
+      await _supabase.from('posts').insert(newPost.toJson());
+      print('Post successfully added to Supabase');
+
+      // Reload posts to ensure consistency
+      await _loadPosts();
+    } catch (e, stackTrace) {
+      // If Supabase insert fails, remove from local list
+      _posts.removeWhere((post) => post.id == newPost.id);
+      notifyListeners();
+
+      print('Error adding post: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
     }
   }
 
-  void _addInitialPosts() {
-    _posts = [
-      Post(
-        username: 'Property Manager',
-        handle: '@PropManager',
-        content:
-            'Reminder: Building maintenance scheduled for tomorrow from 9 AM to 12 PM. Please ensure easy access to common areas. Thank you for your cooperation!',
-        timeAgo: '2h',
-        comments: 12,
-        reposts: 5,
-        likes: 32,
-        views: 245,
-      ),
-      Post(
-        username: 'John Doe',
-        handle: '@JohnD',
-        content:
-            'Lost keys found near the elevator on the 3rd floor. If they\'re yours, please contact the front desk. Let\'s get them back to their owner!',
-        timeAgo: '4h',
-        comments: 8,
-        reposts: 2,
-        likes: 15,
-        views: 180,
-      ),
-      Post(
-        username: 'Sarah Smith',
-        handle: '@SarahS',
-        content:
-            'Just a reminder about our community BBQ this Saturday! Don\'t forget to RSVP if you haven\'t already. Looking forward to seeing everyone there!',
-        timeAgo: '1d',
-        comments: 25,
-        reposts: 10,
-        likes: 50,
-        views: 420,
-      ),
-    ];
-    _savePosts();
-  }
-
-  void addPost(Post post) {
-    _posts.insert(0, post);
-    _savePosts();
+  void incrementComments(String postId) {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    post.comments++;
     notifyListeners();
   }
 
-  void incrementComments(int index) {
-    _posts[index].comments++;
-    _savePosts();
+  void incrementReposts(String postId) {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    post.reposts++;
     notifyListeners();
   }
 
-  void incrementReposts(int index) {
-    _posts[index].reposts++;
-    _savePosts();
+  void incrementLikes(String postId) {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    post.likes++;
     notifyListeners();
   }
 
-  void incrementLikes(int index) {
-    _posts[index].likes++;
-    _savePosts();
-    notifyListeners();
-  }
-
-  void incrementViews(int index) {
-    _posts[index].views++;
-    _savePosts();
+  void incrementViews(String postId) {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    post.views++;
     notifyListeners();
   }
 }

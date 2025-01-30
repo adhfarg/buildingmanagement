@@ -93,12 +93,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     onPressed: () {
                       if (_recipientController.text.isNotEmpty &&
                           _messageController.text.isNotEmpty) {
-                        context.read<MessageModel>().addMessage(
+                        context.read<MessageModel>().sendMessage(
                               Message(
-                                sender: _recipientController.text,
-                                preview: _messageController.text,
-                                avatarUrl:
-                                    'https://picsum.photos/seed/${_recipientController.text}/200',
+                                id: DateTime.now()
+                                    .millisecondsSinceEpoch
+                                    .toString(),
+                                content: _messageController.text,
+                                senderId:
+                                    'currentUser', // TODO: Replace with actual user ID
+                                receiverId: _recipientController.text,
+                                timestamp: DateTime.now(),
                               ),
                             );
                         _recipientController.clear();
@@ -153,9 +157,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 ),
                 const SizedBox(height: 16),
                 ...messageModel.messages.map((message) => _buildMessageItem(
-                      message.sender,
-                      message.preview,
-                      message.avatarUrl,
+                      message.senderId,
+                      message.content,
+                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(message.senderId)}&background=random&color=fff',
                     )),
               ],
             ),
@@ -166,7 +170,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
   }
 
-  Widget _buildMessageItem(String sender, String preview, String avatarUrl) {
+  Widget _buildMessageItem(String sender, String content, String avatarUrl) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       color: Colors.grey[900],
@@ -182,7 +186,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           ),
         ),
         subtitle: Text(
-          preview,
+          content,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: Colors.grey[400]),

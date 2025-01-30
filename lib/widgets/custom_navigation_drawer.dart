@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../routes/routes.dart';
 
 class CustomNavigationDrawer extends StatelessWidget {
   const CustomNavigationDrawer({Key? key}) : super(key: key);
@@ -6,60 +8,80 @@ class CustomNavigationDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.grey[900],
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(color: Colors.black),
-            child: Center(
-              child: Image.asset(
-                'assets/logo.png',
-                height: 250,
-                fit: BoxFit.contain,
-              ),
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.deepPurple,
+                  child: Icon(Icons.person, color: Colors.white, size: 35),
+                ),
+                const SizedBox(height: 10),
+                FutureBuilder<String>(
+                  future: _getUserName(),
+                  builder: (context, snapshot) {
+                    return Text(
+                      snapshot.data ?? 'Loading...',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           _buildDrawerItem(
             context,
-            icon: Icons.home,
+            icon: Icons.home_outlined,
             title: 'Home',
-            route: '/',
+            onTap: () => Navigator.pushReplacementNamed(context, Routes.home),
           ),
           _buildDrawerItem(
             context,
-            icon: Icons.search,
+            icon: Icons.explore_outlined,
             title: 'Explore',
-            route: '/explore',
+            onTap: () => Navigator.pushNamed(context, Routes.explore),
           ),
           _buildDrawerItem(
             context,
-            icon: Icons.notifications,
+            icon: Icons.notifications_outlined,
             title: 'Notifications',
-            route: '/notifications',
+            onTap: () => Navigator.pushNamed(context, Routes.notifications),
           ),
           _buildDrawerItem(
             context,
-            icon: Icons.mail,
+            icon: Icons.message_outlined,
             title: 'Messages',
-            route: '/messages',
+            onTap: () => Navigator.pushNamed(context, Routes.messages),
           ),
           _buildDrawerItem(
             context,
-            icon: Icons.bookmark,
-            title: 'Bookmarks',
-            route: '/bookmarks',
-          ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.group,
-            title: 'Communities',
-            route: '/communities',
-          ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.person,
+            icon: Icons.person_outline,
             title: 'Profile',
-            route: '/profile',
+            onTap: () => Navigator.pushNamed(context, Routes.profile),
+          ),
+          const Divider(color: Colors.grey),
+          _buildDrawerItem(
+            context,
+            icon: Icons.logout,
+            title: 'Sign Out',
+            onTap: () async {
+              await Supabase.instance.client.auth.signOut();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, Routes.login);
+              }
+            },
           ),
         ],
       ),
@@ -70,17 +92,35 @@ class CustomNavigationDrawer extends StatelessWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
-    required String route,
+    required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      onTap: () {
-        Navigator.pop(context); // Close the drawer
-        if (ModalRoute.of(context)?.settings.name != route) {
-          Navigator.pushNamed(context, route);
-        }
-      },
+      leading: Icon(icon, color: Colors.white),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white),
+      ),
+      onTap: onTap,
     );
+  }
+
+  Future<String> _getUserName() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        final profileData = await Supabase.instance.client
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', user.id)
+            .single();
+
+        if (profileData != null) {
+          return '${profileData['first_name']} ${profileData['last_name']}';
+        }
+      }
+    } catch (e) {
+      print('Error getting user name: $e');
+    }
+    return 'Anonymous User';
   }
 }

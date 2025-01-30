@@ -1,42 +1,36 @@
 import 'package:flutter/foundation.dart';
 
 class Message {
-  final String sender;
-  final String preview;
-  final String avatarUrl;
+  final String id;
+  final String content;
+  final String senderId;
+  final String receiverId;
   final DateTime timestamp;
 
   Message({
-    required this.sender,
-    required this.preview,
-    required this.avatarUrl,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
+    required this.id,
+    required this.content,
+    required this.senderId,
+    required this.receiverId,
+    required this.timestamp,
+  });
 }
 
 class MessageModel extends ChangeNotifier {
-  final List<Message> _messages = [
-    Message(
-      sender: 'Property Manager',
-      preview: 'Thank you for your prompt response regarding...',
-      avatarUrl: 'https://picsum.photos/seed/PropManager/200',
-    ),
-    Message(
-      sender: 'Maintenance Team',
-      preview: 'We\'ve scheduled the repair for your unit on...',
-      avatarUrl: 'https://picsum.photos/seed/Maintenance/200',
-    ),
-    Message(
-      sender: 'John from 4B',
-      preview: 'Hey neighbor! I was wondering if you could...',
-      avatarUrl: 'https://picsum.photos/seed/John4B/200',
-    ),
-  ];
+  final List<Message> _messages = [];
 
   List<Message> get messages => List.unmodifiable(_messages);
 
-  void addMessage(Message message) {
-    _messages.insert(0, message);
+  void sendMessage(Message message) {
+    _messages.add(message);
     notifyListeners();
+  }
+
+  List<Message> getConversation(String userId1, String userId2) {
+    return _messages
+        .where((message) =>
+            (message.senderId == userId1 && message.receiverId == userId2) ||
+            (message.senderId == userId2 && message.receiverId == userId1))
+        .toList();
   }
 }

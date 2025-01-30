@@ -40,6 +40,7 @@ class _RightSidebarState extends State<RightSidebar> {
 
   final List<String> allResidents = [
     'Sarah M.',
+    'Amir F.',
     'Alex T.',
     'Emma R.',
     'Adam F.',

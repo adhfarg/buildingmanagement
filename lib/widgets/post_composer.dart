@@ -3,17 +3,20 @@ import 'package:provider/provider.dart';
 import '../models/post_model.dart';
 import 'post_creation_buttons.dart';
 import 'package:giphy_picker/giphy_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 
 class PostComposer extends StatefulWidget {
   const PostComposer({Key? key}) : super(key: key);
 
   @override
-  State<PostComposer> createState() => _PostComposerState();
+  _PostComposerState createState() => _PostComposerState();
 }
 
 class _PostComposerState extends State<PostComposer> {
-  final TextEditingController _controller = TextEditingController();
+  final _contentController = TextEditingController();
+  bool _isComposing = false;
+  bool _isLoading = false;
   List<File> _selectedImages = [];
   GiphyGif? _selectedGif;
   String? _selectedEmoji;
@@ -23,35 +26,50 @@ class _PostComposerState extends State<PostComposer> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _contentController.dispose();
     super.dispose();
   }
 
-  void _submitPost() {
-    if (_controller.text.isNotEmpty ||
-        _selectedGif != null ||
-        _selectedImages.isNotEmpty) {
-      final post = Post(
-        username: 'Current User',
-        handle: '@CurrentUser',
-        content: _controller.text,
-        timeAgo: 'now',
-        gifUrl: _selectedGif?.images.original?.url,
-        images: _selectedImages.map((file) => file.path).toList(),
-        poll: _poll,
-        scheduledTime: _scheduledTime,
-        location: _location,
-        comments: 0,
-        reposts: 0,
-        likes: 0,
-        views: 0,
-      );
+  Future<String> _getUserName() async {
+    try {
+      print('Fetching current user...');
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        print('User found, fetching profile data...');
+        final profileData = await Supabase.instance.client
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', user.id)
+            .single();
 
-      context.read<PostModel>().addPost(post);
+        print('Profile data retrieved: $profileData');
+        if (profileData != null) {
+          final name =
+              '${profileData['first_name']} ${profileData['last_name']}';
+          print('Returning user name: $name');
+          return name;
+        }
+      }
+    } catch (e) {
+      print('Error getting user name: $e');
+    }
+    return 'Anonymous User';
+  }
 
-      // Reset state
+  Future<void> _handleSubmitted() async {
+    final content = _contentController.text.trim();
+    if (content.isEmpty) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final userName = await _getUserName();
+      await Provider.of<PostModel>(context, listen: false)
+          .addPost(content, userName);
+
+      _contentController.clear();
       setState(() {
-        _controller.clear();
+        _isComposing = false;
         _selectedImages = [];
         _selectedGif = null;
         _selectedEmoji = null;
@@ -59,234 +77,78 @@ class _PostComposerState extends State<PostComposer> {
         _scheduledTime = null;
         _location = null;
       });
-    }
-  }
 
-  Widget _buildAttachmentPreview() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (_selectedImages.isNotEmpty)
-          Container(
-            height: 100,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _selectedImages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          _selectedImages[index],
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedImages.removeAt(index);
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.close,
-                                size: 18, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Post created successfully!'),
+            backgroundColor: Colors.green,
           ),
-        if (_selectedGif != null)
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    _selectedGif!.images.original!.url!,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 4,
-                right: 4,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedGif = null;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.close, size: 18, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
+        );
+      }
+    } catch (e) {
+      print('Error creating post: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating post: $e'),
+            backgroundColor: Colors.red,
           ),
-        if (_poll != null)
-          Card(
-            color: Colors.grey[800],
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ..._poll!.keys.map((option) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Icon(Icons.radio_button_unchecked,
-                              color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(option, style: TextStyle(color: Colors.white)),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _poll = null;
-                      });
-                    },
-                    child: Text('Remove Poll',
-                        style: TextStyle(color: Colors.red)),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        if (_scheduledTime != null)
-          Chip(
-            backgroundColor: Colors.grey[800],
-            avatar: Icon(Icons.schedule, size: 16, color: Colors.white),
-            label: Text(
-              'Scheduled for: ${_scheduledTime!.toString().split('.').first}',
-              style: TextStyle(color: Colors.white),
-            ),
-            onDeleted: () => setState(() => _scheduledTime = null),
-            deleteIconColor: Colors.white,
-          ),
-        if (_location != null)
-          Chip(
-            backgroundColor: Colors.grey[800],
-            avatar: Icon(Icons.location_on, size: 16, color: Colors.white),
-            label: Text(_location!, style: TextStyle(color: Colors.white)),
-            onDeleted: () => setState(() => _location = null),
-            deleteIconColor: Colors.white,
-          ),
-      ],
-    );
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: const EdgeInsets.all(16),
       color: Colors.grey[900],
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  backgroundImage:
-                      NetworkImage('https://i.pravatar.cc/150?img=1'),
-                  radius: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: "What's happening in the building?",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: InputBorder.none,
-                    ),
-                    maxLines: null,
-                  ),
-                ),
-              ],
+            TextField(
+              controller: _contentController,
+              maxLines: 3,
+              minLines: 1,
+              decoration: const InputDecoration(
+                hintText: 'What\'s happening in the building?',
+                border: InputBorder.none,
+              ),
+              onChanged: (text) {
+                setState(() {
+                  _isComposing = text.trim().isNotEmpty;
+                });
+              },
             ),
-            _buildAttachmentPreview(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: PostCreationButtons(
-                    onImageSelected: (images) =>
-                        setState(() => _selectedImages = images),
-                    onGifSelected: (gif) => setState(() => _selectedGif = gif),
-                    onEmojiSelected: (emoji) =>
-                        setState(() => _selectedEmoji = emoji),
-                    onPollCreated: () =>
-                        setState(() => _poll = {'Option 1': 0, 'Option 2': 0}),
-                    onScheduleSelected: () async {
-                      final DateTime? date = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
-                      );
-                      if (date != null) {
-                        final TimeOfDay? time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          setState(() {
-                            _scheduledTime = DateTime(
-                              date.year,
-                              date.month,
-                              date.day,
-                              time.hour,
-                              time.minute,
-                            );
-                          });
-                        }
-                      }
-                    },
-                    onLocationSelected: () =>
-                        setState(() => _location = 'Current Location'),
-                  ),
-                ),
                 ElevatedButton(
-                  onPressed: _submitPost,
+                  onPressed:
+                      _isComposing && !_isLoading ? _handleSubmitted : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
                   ),
-                  child: const Text('Post'),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text('Post'),
                 ),
               ],
             ),
